@@ -9,9 +9,16 @@ import SwiftUI
 
 @main
 struct Awesome_StickiesApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
+    private let container = AppContainer.shared
+
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        Settings {
+            EmptyView()
+        }
+        .commands {
+            NewNoteCommands(viewModel: container.appViewModel)
         }
     }
 }
