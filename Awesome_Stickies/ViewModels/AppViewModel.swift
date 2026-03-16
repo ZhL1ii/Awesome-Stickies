@@ -49,6 +49,7 @@ final class AppViewModel: ObservableObject {
 
             if restoredNotes.isEmpty {
                 createAndOpenNote()
+                persistNotesNow()
                 return
             }
 
