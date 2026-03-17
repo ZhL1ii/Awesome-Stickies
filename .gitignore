@@ -1,0 +1,14 @@
+.DS_Store
+
+# Xcode user-specific data
+xcuserdata/
+*.xcuserstate
+
+# Xcode build outputs and caches
+.DerivedData/
+DerivedData/
+build/
+
+# Coverage and profiling output
+*.profraw
+*.profdata
