@@ -38,6 +38,8 @@ final class NoteWindowManager: NSObject, NoteWindowManaging {
                 noteID: note.id
             )
         )
+        hostingController.view.wantsLayer = true
+        hostingController.view.layer?.backgroundColor = NSColor.clear.cgColor
 
         let window = NSWindow(contentViewController: hostingController)
         window.identifier = NSUserInterfaceItemIdentifier(note.id.uuidString)
@@ -47,10 +49,7 @@ final class NoteWindowManager: NSObject, NoteWindowManaging {
         window.setFrame(frame.cgRect, display: false)
         window.minSize = WindowSceneConfiguration.minimumSize
         window.isReleasedWhenClosed = false
-        window.styleMask.insert(.fullSizeContentView)
-        window.titleVisibility = .hidden
-        window.titlebarAppearsTransparent = true
-        window.isMovableByWindowBackground = true
+        configureAppearance(for: window)
         window.makeKeyAndOrderFront(nil)
 
         windowsByNoteID[note.id] = window
@@ -82,6 +81,27 @@ final class NoteWindowManager: NSObject, NoteWindowManaging {
         }
 
         return viewModel
+    }
+
+    private func configureAppearance(for window: NSWindow) {
+        window.styleMask.insert(.fullSizeContentView)
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.titlebarSeparatorStyle = .none
+        window.isMovableByWindowBackground = true
+
+        // Keep the titled/resizable window model, but remove the default shell
+        // so the sticky content defines the visible shape.
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.hasShadow = false
+        window.contentView?.wantsLayer = true
+        window.contentView?.layer?.backgroundColor = NSColor.clear.cgColor
+
+        // Hide all standard title bar controls so the sticky remains the only visible chrome.
+        window.standardWindowButton(.closeButton)?.isHidden = true
+        window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+        window.standardWindowButton(.zoomButton)?.isHidden = true
     }
 }
 

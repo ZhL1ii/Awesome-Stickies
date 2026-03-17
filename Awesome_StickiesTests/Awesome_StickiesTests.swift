@@ -144,6 +144,37 @@ struct Awesome_StickiesTests {
         #expect(persistence.savedSnapshots[0].first?.text == "ABC")
     }
 
+    @Test func updatingTitleDebouncesAutosaveAndPersistsLatestTitle() async throws {
+        let persistence = InMemoryStickyNotesPersistence()
+        let viewModel = AppViewModel(persistence: persistence, autosaveDelay: 0.02)
+
+        viewModel.createAndOpenNote()
+        let noteID = try #require(viewModel.notes.first?.id)
+
+        viewModel.titleBinding(for: noteID).wrappedValue = "A"
+        viewModel.titleBinding(for: noteID).wrappedValue = "AB"
+        viewModel.titleBinding(for: noteID).wrappedValue = "ABC"
+
+        try await Task.sleep(for: .milliseconds(80))
+
+        #expect(persistence.savedSnapshots.count == 1)
+        #expect(persistence.savedSnapshots[0].first?.title == "ABC")
+    }
+
+    @Test func committingTitleEditingPersistsImmediately() async throws {
+        let persistence = InMemoryStickyNotesPersistence()
+        let viewModel = AppViewModel(persistence: persistence, autosaveDelay: 1)
+
+        viewModel.createAndOpenNote()
+        let noteID = try #require(viewModel.notes.first?.id)
+
+        viewModel.titleBinding(for: noteID).wrappedValue = "Renamed"
+        viewModel.commitTitleEditing(for: noteID)
+
+        #expect(persistence.savedSnapshots.count == 1)
+        #expect(persistence.savedSnapshots[0].first?.title == "Renamed")
+    }
+
     @Test func updatingColorDebouncesAutosaveAndPersistsLatestColor() async throws {
         let persistence = InMemoryStickyNotesPersistence()
         let viewModel = AppViewModel(persistence: persistence, autosaveDelay: 0.02)

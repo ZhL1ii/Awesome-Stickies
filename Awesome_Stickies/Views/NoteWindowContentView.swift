@@ -16,8 +16,12 @@ struct NoteWindowContentView: View {
             if let note = viewModel.note(withID: noteID) {
                 StickyNoteView(
                     note: note,
+                    title: viewModel.titleBinding(for: noteID),
                     text: viewModel.textBinding(for: noteID),
                     color: viewModel.colorBinding(for: noteID),
+                    onCommitTitle: {
+                        viewModel.commitTitleEditing(for: noteID)
+                    },
                     onDelete: {
                         viewModel.deleteNote(noteID: noteID)
                     }
@@ -26,9 +30,14 @@ struct NoteWindowContentView: View {
                 Color.clear
             }
         }
+        // Expand the note into the entire content area, including the transparent title bar.
         .frame(
             minWidth: WindowSceneConfiguration.minimumSize.width,
-            minHeight: WindowSceneConfiguration.minimumSize.height
+            maxWidth: .infinity,
+            minHeight: WindowSceneConfiguration.minimumSize.height,
+            maxHeight: .infinity
         )
+        .background(.clear)
+        .ignoresSafeArea()
     }
 }

@@ -97,6 +97,17 @@ final class AppViewModel: ObservableObject {
         )
     }
 
+    func titleBinding(for noteID: UUID) -> Binding<String> {
+        Binding(
+            get: { [weak self] in
+                self?.note(withID: noteID)?.title ?? ""
+            },
+            set: { [weak self] newTitle in
+                self?.updateNoteTitle(noteID: noteID, title: newTitle)
+            }
+        )
+    }
+
     func colorBinding(for noteID: UUID) -> Binding<NoteColor> {
         Binding(
             get: { [weak self] in
@@ -134,12 +145,35 @@ final class AppViewModel: ObservableObject {
         saveNotes()
     }
 
+    func commitTitleEditing(for noteID: UUID) {
+        guard note(withID: noteID) != nil else {
+            return
+        }
+
+        persistNotesNow()
+    }
+
     private func updateNoteText(noteID: UUID, text: String) {
         guard let noteIndex = notes.firstIndex(where: { $0.id == noteID }) else {
             return
         }
 
         notes[noteIndex].text = text
+        notes[noteIndex].updatedAt = Date()
+        windowManager?.updateWindow(for: notes[noteIndex])
+        scheduleAutosave()
+    }
+
+    private func updateNoteTitle(noteID: UUID, title: String) {
+        guard let noteIndex = notes.firstIndex(where: { $0.id == noteID }) else {
+            return
+        }
+
+        guard notes[noteIndex].title != title else {
+            return
+        }
+
+        notes[noteIndex].title = title
         notes[noteIndex].updatedAt = Date()
         windowManager?.updateWindow(for: notes[noteIndex])
         scheduleAutosave()
