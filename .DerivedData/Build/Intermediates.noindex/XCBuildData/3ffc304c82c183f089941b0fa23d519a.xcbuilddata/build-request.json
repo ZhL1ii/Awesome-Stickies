@@ -1,0 +1,73 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildAndRun"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "73faee3f4f47742494732b258d625e974a2288d84596537d76e59ef5c6fa02a3"
+    },
+    {
+      "guid" : "73faee3f4f47742494732b258d625e9799a0a4293fcfec807e3cb8c84ee128a7"
+    },
+    {
+      "guid" : "73faee3f4f47742494732b258d625e97f635431f59a685cba6599bc1164a0914"
+    }
+  ],
+  "containerPath" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/Awesome_Stickies.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "macosx",
+      "sdk" : "macosx26.2",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "arm64e",
+        "arm64",
+        "x86_64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Products",
+      "derivedDataPath" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData",
+      "indexDataStoreFolderPath" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+          "CODE_SIGN_IDENTITY" : "",
+          "CODE_SIGNING_ALLOWED" : "NO",
+          "CODE_SIGNING_REQUIRED" : "NO"
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "CLANG_COVERAGE_MAPPING" : "YES",
+          "CLANG_PROFILE_DATA_DIRECTORY" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/ProfileData",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES",
+          "ONLY_ACTIVE_ARCH" : "YES"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "test",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

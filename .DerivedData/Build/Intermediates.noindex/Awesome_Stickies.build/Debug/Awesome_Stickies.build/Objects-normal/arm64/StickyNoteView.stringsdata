@@ -1,0 +1,24 @@
+{
+  "source": "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/Awesome_Stickies/Views/StickyNoteView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Change note color",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 57
+        }
+      },
+      {
+        "comment": "",
+        "key": "Note Color",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 42
+        }
+      }
+    ]
+  },
+  "version": 1
+}

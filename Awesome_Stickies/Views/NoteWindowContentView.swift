@@ -16,7 +16,8 @@ struct NoteWindowContentView: View {
             if let note = viewModel.note(withID: noteID) {
                 StickyNoteView(
                     note: note,
-                    text: viewModel.textBinding(for: noteID)
+                    text: viewModel.textBinding(for: noteID),
+                    color: viewModel.colorBinding(for: noteID)
                 )
             } else {
                 Color.clear

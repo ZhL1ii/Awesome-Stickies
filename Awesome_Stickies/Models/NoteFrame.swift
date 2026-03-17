@@ -14,6 +14,13 @@ struct NoteFrame: Codable, Equatable {
     var width: Double
     var height: Double
 
+    init(x: Double, y: Double, width: Double, height: Double) {
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+    }
+
     static let defaultFrame = NoteFrame(
         x: 120,
         y: 120,
@@ -27,5 +34,25 @@ struct NoteFrame: Codable, Equatable {
 
     var size: CGSize {
         CGSize(width: width, height: height)
+    }
+
+    var cgRect: CGRect {
+        CGRect(origin: origin, size: size)
+    }
+
+    func sanitized(minimumSize: CGSize) -> NoteFrame {
+        NoteFrame(
+            x: x,
+            y: y,
+            width: max(width, minimumSize.width),
+            height: max(height, minimumSize.height)
+        )
+    }
+
+    init(rect: CGRect) {
+        self.x = rect.origin.x
+        self.y = rect.origin.y
+        self.width = rect.size.width
+        self.height = rect.size.height
     }
 }

@@ -1,0 +1,4 @@
+
+
+*** If you believe this error represents a bug, please attach the result bundle at /Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Logs/Test/Test-Awesome_Stickies-2026.03.16_18-15-12-+0800.xcresult
+

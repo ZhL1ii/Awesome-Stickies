@@ -84,8 +84,35 @@ final class AppViewModel: ObservableObject {
         )
     }
 
+    func colorBinding(for noteID: UUID) -> Binding<NoteColor> {
+        Binding(
+            get: { [weak self] in
+                self?.note(withID: noteID)?.color ?? .yellow
+            },
+            set: { [weak self] newColor in
+                self?.updateNoteColor(noteID: noteID, color: newColor)
+            }
+        )
+    }
+
     func handleWindowClose(for noteID: UUID) {
         notes.removeAll { $0.id == noteID }
+        scheduleAutosave()
+    }
+
+    func updateNoteFrame(noteID: UUID, frame: NoteFrame) {
+        guard let noteIndex = notes.firstIndex(where: { $0.id == noteID }) else {
+            return
+        }
+
+        let sanitizedFrame = frame.sanitized(minimumSize: WindowSceneConfiguration.minimumSize)
+
+        guard notes[noteIndex].frame != sanitizedFrame else {
+            return
+        }
+
+        notes[noteIndex].frame = sanitizedFrame
+        notes[noteIndex].updatedAt = Date()
         scheduleAutosave()
     }
 
@@ -101,6 +128,21 @@ final class AppViewModel: ObservableObject {
         }
 
         notes[noteIndex].text = text
+        notes[noteIndex].updatedAt = Date()
+        windowManager?.updateWindow(for: notes[noteIndex])
+        scheduleAutosave()
+    }
+
+    private func updateNoteColor(noteID: UUID, color: NoteColor) {
+        guard let noteIndex = notes.firstIndex(where: { $0.id == noteID }) else {
+            return
+        }
+
+        guard notes[noteIndex].color != color else {
+            return
+        }
+
+        notes[noteIndex].color = color
         notes[noteIndex].updatedAt = Date()
         windowManager?.updateWindow(for: notes[noteIndex])
         scheduleAutosave()

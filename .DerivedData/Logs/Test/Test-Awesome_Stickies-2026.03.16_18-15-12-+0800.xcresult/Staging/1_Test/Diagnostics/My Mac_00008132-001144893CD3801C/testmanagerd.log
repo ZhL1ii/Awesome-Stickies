@@ -1,0 +1,6 @@
+18:15:21.879 xcodebuild[79936:7621876] Requesting a socket for communication with testmanagerd.
+18:15:21.879 xcodebuild[79936:7621891] XPC connection for control was invalidated.
+18:15:21.879 xcodebuild[79936:7621891] Got error while requesting file descriptor pair: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.testmanagerd.control was invalidated: Connection init failed at lookup with error 159 - Sandbox restriction." UserInfo={NSDebugDescription=The connection to service named com.apple.testmanagerd.control was invalidated: Connection init failed at lookup with error 159 - Sandbox restriction.}
+18:15:22.226 xcodebuild[79936:7621876] Requesting a socket for communication with testmanagerd.
+18:15:22.226 xcodebuild[79936:7621891] XPC connection for control was invalidated.
+18:15:22.226 xcodebuild[79936:7621891] Got error while requesting file descriptor pair: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.testmanagerd.control was invalidated: Connection init failed at lookup with error 159 - Sandbox restriction." UserInfo={NSDebugDescription=The connection to service named com.apple.testmanagerd.control was invalidated: Connection init failed at lookup with error 159 - Sandbox restriction.}

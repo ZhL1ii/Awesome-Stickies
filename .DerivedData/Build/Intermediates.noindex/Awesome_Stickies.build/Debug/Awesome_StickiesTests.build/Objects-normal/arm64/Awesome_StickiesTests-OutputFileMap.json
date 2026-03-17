@@ -1,0 +1,19 @@
+{
+  "" : {
+    "diagnostics" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests-primary.dia",
+    "emit-module-dependencies" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests-primary-emit-module.dia",
+    "pch" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests-primary.swiftdeps"
+  },
+  "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/Awesome_StickiesTests/Awesome_StickiesTests.swift" : {
+    "const-values" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests.swiftconstvalues",
+    "dependencies" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests.d",
+    "diagnostics" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests.dia",
+    "index-unit-output-path" : "/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests.o",
+    "llvm-bc" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests.bc",
+    "object" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests.o",
+    "swift-dependencies" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests.swiftdeps",
+    "swiftmodule" : "/Users/chie/DEVELOPER/Projects/Awesome_Stickies/.DerivedData/Build/Intermediates.noindex/Awesome_Stickies.build/Debug/Awesome_StickiesTests.build/Objects-normal/arm64/Awesome_StickiesTests~partial.swiftmodule"
+  }
+}

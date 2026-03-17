@@ -10,12 +10,13 @@ import SwiftUI
 struct StickyNoteView: View {
     let note: StickyNote
     @Binding var text: String
+    @Binding var color: NoteColor
 
     @FocusState private var isEditorFocused: Bool
 
     var body: some View {
         ZStack {
-            note.color.backgroundColor
+            color.backgroundColor
                 .overlay {
                     Rectangle()
                         .fill(.regularMaterial.opacity(0.3))
@@ -25,13 +26,35 @@ struct StickyNoteView: View {
                 HStack(alignment: .firstTextBaseline) {
                     Text(note.title)
                         .font(.headline)
-                        .foregroundStyle(.primary.opacity(0.75))
+                        .foregroundStyle(color.titleColor)
 
                     Spacer()
 
-                    Circle()
-                        .fill(note.color.accentColor.opacity(0.9))
-                        .frame(width: 10, height: 10)
+                    Menu {
+                        ForEach(NoteColor.allCases) { option in
+                            Button {
+                                color = option
+                            } label: {
+                                Label(option.displayName, systemImage: option == color ? "checkmark.circle.fill" : "circle")
+                            }
+                        }
+                    } label: {
+                        Label("Note Color", systemImage: "paintpalette")
+                            .labelStyle(.iconOnly)
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(color.titleColor)
+                            .frame(width: 28, height: 28)
+                            .background(
+                                Circle()
+                                    .fill(color.editorBackgroundColor.opacity(0.95))
+                            )
+                            .overlay(
+                                Circle()
+                                    .stroke(color.accentColor.opacity(0.9), lineWidth: 2)
+                            )
+                    }
+                    .menuStyle(.borderlessButton)
+                    .help("Change note color")
                 }
 
                 TextEditor(
@@ -40,15 +63,15 @@ struct StickyNoteView: View {
                 .focused($isEditorFocused)
                 .scrollContentBackground(.hidden)
                 .font(.system(size: 16))
-                .foregroundStyle(.primary)
+                .foregroundStyle(color.bodyColor)
                 .padding(12)
                 .background {
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(.thinMaterial)
+                        .fill(color.editorBackgroundColor)
                 }
                 .overlay {
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .strokeBorder(.white.opacity(0.18), lineWidth: 1)
+                        .strokeBorder(color.borderColor, lineWidth: 1)
                 }
                 .onTapGesture {
                     isEditorFocused = true
@@ -59,7 +82,7 @@ struct StickyNoteView: View {
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .strokeBorder(.white.opacity(0.22), lineWidth: 1)
+                .strokeBorder(color.borderColor, lineWidth: 1)
         }
         .padding(14)
         .frame(

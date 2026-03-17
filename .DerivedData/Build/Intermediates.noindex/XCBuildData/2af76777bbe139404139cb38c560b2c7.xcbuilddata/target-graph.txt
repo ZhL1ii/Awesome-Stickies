@@ -1,0 +1,6 @@
+Target dependency graph (3 targets)
+Target 'Awesome_StickiesUITests' in project 'Awesome_Stickies'
+➜ Explicit dependency on target 'Awesome_Stickies' in project 'Awesome_Stickies'
+Target 'Awesome_StickiesTests' in project 'Awesome_Stickies'
+➜ Explicit dependency on target 'Awesome_Stickies' in project 'Awesome_Stickies'
+Target 'Awesome_Stickies' in project 'Awesome_Stickies' (no dependencies)
