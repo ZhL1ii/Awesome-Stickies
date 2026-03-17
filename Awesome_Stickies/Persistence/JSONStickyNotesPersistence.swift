@@ -32,17 +32,81 @@ final class JSONStickyNotesPersistence: StickyNotesPersistence {
 
     func loadNotes() throws -> [StickyNote] {
         let fileURL = try pathProvider.notesFileURL
+        let backupFileURL = try pathProvider.backupNotesFileURL
+
         guard fileManager.fileExists(atPath: fileURL.path) else {
-            return []
+            guard fileManager.fileExists(atPath: backupFileURL.path) else {
+                return []
+            }
+
+            return try loadNotes(from: backupFileURL)
         }
 
-        let data = try Data(contentsOf: fileURL)
-        return try decoder.decode([StickyNote].self, from: data)
+        do {
+            return try loadNotes(from: fileURL)
+        } catch {
+            let primaryError = error
+
+            guard fileManager.fileExists(atPath: backupFileURL.path) else {
+                throw StickyNotesPersistenceError.loadFailed(primaryError: primaryError, backupError: nil)
+            }
+
+            do {
+                let restoredNotes = try loadNotes(from: backupFileURL)
+                try? copyItem(at: backupFileURL, to: fileURL)
+                return restoredNotes
+            } catch {
+                throw StickyNotesPersistenceError.loadFailed(primaryError: primaryError, backupError: error)
+            }
+        }
     }
 
     func saveNotes(_ notes: [StickyNote]) throws {
         let fileURL = try pathProvider.notesFileURL
+        let backupFileURL = try pathProvider.backupNotesFileURL
         let data = try encoder.encode(notes)
-        try data.write(to: fileURL, options: .atomic)
+
+        do {
+            try data.write(to: fileURL, options: .atomic)
+        } catch {
+            let primaryError = error
+
+            do {
+                try data.write(to: backupFileURL, options: .atomic)
+                return
+            } catch {
+                throw StickyNotesPersistenceError.saveFailed(primaryError: primaryError, backupError: error)
+            }
+        }
+
+        try? data.write(to: backupFileURL, options: .atomic)
+    }
+
+    private func loadNotes(from fileURL: URL) throws -> [StickyNote] {
+        let data = try Data(contentsOf: fileURL)
+        return try decoder.decode([StickyNote].self, from: data)
+    }
+
+    private func copyItem(at sourceURL: URL, to destinationURL: URL) throws {
+        let data = try Data(contentsOf: sourceURL)
+        try data.write(to: destinationURL, options: .atomic)
+    }
+}
+
+private enum StickyNotesPersistenceError: LocalizedError {
+    case loadFailed(primaryError: Error, backupError: Error?)
+    case saveFailed(primaryError: Error, backupError: Error)
+
+    var errorDescription: String? {
+        switch self {
+        case let .loadFailed(primaryError, backupError):
+            if let backupError {
+                return "Failed to load notes from both primary and backup files: \(primaryError.localizedDescription); backup: \(backupError.localizedDescription)"
+            }
+
+            return "Failed to load notes: \(primaryError.localizedDescription)"
+        case let .saveFailed(primaryError, backupError):
+            return "Failed to save notes to both primary and backup files: \(primaryError.localizedDescription); backup: \(backupError.localizedDescription)"
+        }
     }
 }

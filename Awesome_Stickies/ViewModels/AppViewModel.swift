@@ -59,6 +59,7 @@ final class AppViewModel: ObservableObject {
         } catch {
             handlePersistenceError(error, context: "Failed to load notes during launch")
             createAndOpenNote()
+            persistNotesNow()
         }
     }
 
@@ -67,6 +68,18 @@ final class AppViewModel: ObservableObject {
         notes.append(note)
         windowManager?.showWindow(for: note)
         scheduleAutosave()
+    }
+
+    func deleteNote(noteID: UUID) {
+        guard note(withID: noteID) != nil else {
+            return
+        }
+
+        let didCloseWindow = windowManager?.closeWindow(for: noteID) ?? false
+
+        if !didCloseWindow {
+            removeNote(noteID: noteID)
+        }
     }
 
     func note(withID noteID: UUID) -> StickyNote? {
@@ -96,8 +109,7 @@ final class AppViewModel: ObservableObject {
     }
 
     func handleWindowClose(for noteID: UUID) {
-        notes.removeAll { $0.id == noteID }
-        scheduleAutosave()
+        removeNote(noteID: noteID)
     }
 
     func updateNoteFrame(noteID: UUID, frame: NoteFrame) {
@@ -152,6 +164,17 @@ final class AppViewModel: ObservableObject {
         notes.forEach { note in
             windowManager?.showWindow(for: note)
         }
+    }
+
+    private func removeNote(noteID: UUID) {
+        let originalCount = notes.count
+        notes.removeAll { $0.id == noteID }
+
+        guard notes.count != originalCount else {
+            return
+        }
+
+        scheduleAutosave()
     }
 
     private func scheduleAutosave() {

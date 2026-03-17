@@ -11,7 +11,7 @@ import SwiftUI
 @MainActor
 protocol NoteWindowManaging: AnyObject {
     func showWindow(for note: StickyNote)
-    func closeWindow(for noteID: UUID)
+    func closeWindow(for noteID: UUID) -> Bool
     func updateWindow(for note: StickyNote)
 }
 
@@ -58,14 +58,14 @@ final class NoteWindowManager: NSObject, NoteWindowManaging {
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    func closeWindow(for noteID: UUID) {
+    func closeWindow(for noteID: UUID) -> Bool {
         guard let window = windowsByNoteID.removeValue(forKey: noteID) else {
-            return
+            return false
         }
 
         noteIDsByWindowNumber.removeValue(forKey: window.windowNumber)
-        window.delegate = nil
         window.close()
+        return true
     }
 
     func updateWindow(for note: StickyNote) {

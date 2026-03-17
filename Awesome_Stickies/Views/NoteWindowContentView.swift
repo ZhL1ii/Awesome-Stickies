@@ -17,7 +17,10 @@ struct NoteWindowContentView: View {
                 StickyNoteView(
                     note: note,
                     text: viewModel.textBinding(for: noteID),
-                    color: viewModel.colorBinding(for: noteID)
+                    color: viewModel.colorBinding(for: noteID),
+                    onDelete: {
+                        viewModel.deleteNote(noteID: noteID)
+                    }
                 )
             } else {
                 Color.clear

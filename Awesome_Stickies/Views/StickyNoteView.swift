@@ -11,6 +11,7 @@ struct StickyNoteView: View {
     let note: StickyNote
     @Binding var text: String
     @Binding var color: NoteColor
+    let onDelete: () -> Void
 
     @FocusState private var isEditorFocused: Bool
 
@@ -37,6 +38,12 @@ struct StickyNoteView: View {
                             } label: {
                                 Label(option.displayName, systemImage: option == color ? "checkmark.circle.fill" : "circle")
                             }
+                        }
+
+                        Divider()
+
+                        Button(role: .destructive, action: onDelete) {
+                            Label("Delete Note", systemImage: "trash")
                         }
                     } label: {
                         Label("Note Color", systemImage: "paintpalette")

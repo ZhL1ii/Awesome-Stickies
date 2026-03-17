@@ -45,6 +45,51 @@ struct Awesome_StickiesTests {
         #expect(viewModel.notes[0].id == remainingNoteID)
     }
 
+    @Test func deletingNoteClosesWindowRemovesMatchingNoteAndPersists() async throws {
+        let persistence = InMemoryStickyNotesPersistence()
+        let windowManager = NoteWindowManagerSpy()
+        let viewModel = AppViewModel(persistence: persistence, autosaveDelay: 0.01)
+
+        viewModel.attachWindowManager(windowManager)
+        viewModel.createAndOpenNote()
+        viewModel.createAndOpenNote()
+
+        let deletedNoteID = try #require(viewModel.notes.first?.id)
+        let remainingNoteID = try #require(viewModel.notes.last?.id)
+
+        viewModel.deleteNote(noteID: deletedNoteID)
+        viewModel.handleWindowClose(for: deletedNoteID)
+
+        #expect(windowManager.closedNoteIDs == [deletedNoteID])
+        #expect(viewModel.notes.map(\.id) == [remainingNoteID])
+
+        try await Task.sleep(for: .milliseconds(40))
+
+        #expect(persistence.savedSnapshots.count == 1)
+        #expect(persistence.savedSnapshots[0].map(\.id) == [remainingNoteID])
+    }
+
+    @Test func deletingLastNoteLeavesEmptyStateUntilNextLaunch() async throws {
+        let persistence = InMemoryStickyNotesPersistence()
+        let windowManager = NoteWindowManagerSpy()
+        let viewModel = AppViewModel(persistence: persistence, autosaveDelay: 0.01)
+
+        viewModel.attachWindowManager(windowManager)
+        viewModel.createAndOpenNote()
+
+        let noteID = try #require(viewModel.notes.first?.id)
+
+        viewModel.deleteNote(noteID: noteID)
+        viewModel.handleWindowClose(for: noteID)
+
+        #expect(viewModel.notes.isEmpty)
+
+        try await Task.sleep(for: .milliseconds(40))
+
+        #expect(persistence.savedSnapshots.count == 1)
+        #expect(persistence.savedSnapshots[0].isEmpty)
+    }
+
     @Test func bootstrapRestoresPersistedNotesAndReopensWindows() async throws {
         let restoredNotes = [
             StickyNote(
@@ -175,6 +220,44 @@ struct Awesome_StickiesTests {
 
         #expect(viewModel.notes.first?.color == .purple)
     }
+
+    @Test func jsonPersistenceFallsBackToBackupWhenPrimaryFileIsCorrupted() async throws {
+        let fileManager = FileManager.default
+        let temporaryDirectory = fileManager.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try fileManager.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
+        defer { try? fileManager.removeItem(at: temporaryDirectory) }
+
+        let pathProvider = ApplicationSupportPathProvider(
+            fileManager: fileManager,
+            bundleIdentifier: "Awesome_StickiesTests",
+            baseDirectoryURL: temporaryDirectory
+        )
+        let persistence = JSONStickyNotesPersistence(
+            fileManager: fileManager,
+            pathProvider: pathProvider
+        )
+        let expectedNotes = [
+            StickyNote(title: "Recovered", text: "From backup", color: .green)
+        ]
+        let primaryURL = try pathProvider.notesFileURL
+        let backupURL = try pathProvider.backupNotesFileURL
+
+        try Data("not-json".utf8).write(to: primaryURL, options: .atomic)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        encoder.dateEncodingStrategy = .iso8601
+        try encoder.encode(expectedNotes).write(to: backupURL, options: .atomic)
+
+        let loadedNotes = try persistence.loadNotes()
+
+        #expect(loadedNotes == expectedNotes)
+
+        let repairedPrimaryData = try Data(contentsOf: primaryURL)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        #expect(try decoder.decode([StickyNote].self, from: repairedPrimaryData) == expectedNotes)
+    }
 }
 
 private final class InMemoryStickyNotesPersistence: StickyNotesPersistence {
@@ -196,13 +279,17 @@ private final class InMemoryStickyNotesPersistence: StickyNotesPersistence {
 private final class NoteWindowManagerSpy: NoteWindowManaging {
     private(set) var shownNoteIDs: [UUID] = []
     private(set) var shownNotes: [StickyNote] = []
+    private(set) var closedNoteIDs: [UUID] = []
 
     func showWindow(for note: StickyNote) {
         shownNoteIDs.append(note.id)
         shownNotes.append(note)
     }
 
-    func closeWindow(for noteID: UUID) {}
+    func closeWindow(for noteID: UUID) -> Bool {
+        closedNoteIDs.append(noteID)
+        return true
+    }
 
     func updateWindow(for note: StickyNote) {}
 }
