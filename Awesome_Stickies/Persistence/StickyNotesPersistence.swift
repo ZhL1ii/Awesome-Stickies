@@ -8,6 +8,19 @@
 import Foundation
 
 protocol StickyNotesPersistence {
-    func loadNotes() throws -> [StickyNote]
-    func saveNotes(_ notes: [StickyNote]) throws
+    func loadState() throws -> PersistedAppState
+    func saveState(_ state: PersistedAppState) throws
+}
+
+struct PersistedAppState: Codable, Equatable {
+    var preferences: AppPreferences
+    var notes: [StickyNote]
+
+    init(
+        preferences: AppPreferences = AppPreferences(),
+        notes: [StickyNote] = []
+    ) {
+        self.preferences = preferences
+        self.notes = notes
+    }
 }

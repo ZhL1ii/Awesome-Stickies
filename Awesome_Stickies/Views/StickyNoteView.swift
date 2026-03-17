@@ -8,7 +8,16 @@
 import SwiftUI
 
 struct StickyNoteView: View {
-    let note: StickyNote
+    private enum ActiveField {
+        case title
+        case body
+    }
+
+    private enum ToolbarControl: Hashable {
+        case color
+        case delete
+    }
+
     @Binding var title: String
     @Binding var text: String
     @Binding var color: NoteColor
@@ -17,123 +26,120 @@ struct StickyNoteView: View {
 
     @FocusState private var isEditorFocused: Bool
     @FocusState private var isTitleEditorFocused: Bool
-    @State private var isEditingTitle = false
     @State private var isShowingDeleteConfirmation = false
+    @State private var titleFieldWidth: CGFloat = 80
+    @State private var lastFocusedField: ActiveField = .body
+    @State private var hoveredToolbarControl: ToolbarControl?
 
     var body: some View {
         ZStack {
-            color.backgroundColor
+            // Keep the note as a single glass sheet: material first, then a tinted wash,
+            // then a restrained highlight so the surface feels lighter without growing heavy.
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(.ultraThinMaterial)
                 .overlay {
-                    Rectangle()
-                        .fill(.regularMaterial.opacity(0.3))
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    color.glassTintColor.opacity(0.58),
+                                    color.glassTintColor.opacity(0.34)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    Circle()
+                        .fill(color.glassGlowColor)
+                        .frame(width: 190, height: 190)
+                        .offset(x: 44, y: 72)
+                        .blur(radius: 28)
+                        .allowsHitTesting(false)
                 }
 
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .firstTextBaseline) {
-                    Group {
-                        if isEditingTitle {
-                            TextField("Note Title", text: $title)
-                                .textFieldStyle(.plain)
-                                .font(.headline)
-                                .foregroundStyle(color.titleColor)
-                                .submitLabel(.done)
-                                .focused($isTitleEditorFocused)
-                                .onSubmit {
-                                    finishTitleEditing()
-                                }
-                                .onChange(of: isTitleEditorFocused) { _, isFocused in
-                                    if !isFocused {
-                                        finishTitleEditing()
-                                    }
-                                }
-                        } else {
-                            Text(note.title)
-                                .font(.headline)
-                                .foregroundStyle(color.titleColor)
-                                .lineLimit(1)
-                                .onTapGesture(count: 2) {
-                                    startTitleEditing()
-                                }
-                        }
-                    }
+            VStack(alignment: .leading, spacing: 8) {
+                header
 
-                    Spacer()
-
-                    Menu {
-                        ForEach(NoteColor.allCases) { option in
-                            Button {
-                                color = option
-                            } label: {
-                                Label(option.displayName, systemImage: option == color ? "checkmark.circle.fill" : "circle")
+                // The editor stays visually attached to the main glass plate.
+                // A light inner wash improves readability without creating another card.
+                TextEditor(text: $text)
+                    .focused($isEditorFocused)
+                    .scrollContentBackground(.hidden)
+                    .font(.system(size: 16))
+                    .foregroundStyle(color.bodyColor)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .padding(.horizontal, 8)
+                    .padding(.top, 4)
+                    .padding(.bottom, 10)
+                    .background(alignment: .top) {
+                        // The editor still gets a readability wash, but its edges stay quiet
+                        // so it feels etched into the same glass surface instead of a second card.
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.07),
+                                        color.editorBackgroundColor.opacity(0.02)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .strokeBorder(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(0.20),
+                                                color.borderColor.opacity(0.32),
+                                                Color.clear
+                                            ],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        ),
+                                        lineWidth: 0.8
+                                    )
                             }
+                            .padding(.horizontal, 1)
+                            .allowsHitTesting(false)
+                    }
+                    .onTapGesture {
+                        isEditorFocused = true
+                    }
+                    .onChange(of: isEditorFocused) { _, isFocused in
+                        if isFocused {
+                            lastFocusedField = .body
                         }
-                    } label: {
-                        Label("Note Color", systemImage: "paintpalette")
-                            .labelStyle(.iconOnly)
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(color.titleColor)
-                            .frame(width: 28, height: 28)
-                            .background(
-                                Circle()
-                                    .fill(color.editorBackgroundColor.opacity(0.95))
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(color.accentColor.opacity(0.9), lineWidth: 2)
-                            )
                     }
-                    .menuStyle(.borderlessButton)
-                    .help("Change note color")
-
-                    Button {
-                        isShowingDeleteConfirmation = true
-                    } label: {
-                        Label("Delete Note", systemImage: "trash")
-                            .labelStyle(.iconOnly)
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(color.titleColor)
-                            .frame(width: 28, height: 28)
-                            .background(
-                                Circle()
-                                    .fill(color.editorBackgroundColor.opacity(0.95))
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(color.accentColor.opacity(0.9), lineWidth: 2)
-                            )
-                    }
-                    .buttonStyle(.plain)
-                    .help("Delete note")
-                }
-
-                TextEditor(
-                    text: $text
-                )
-                .focused($isEditorFocused)
-                .scrollContentBackground(.hidden)
-                .font(.system(size: 16))
-                .foregroundStyle(color.bodyColor)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .padding(12)
-                .background {
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(color.editorBackgroundColor)
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .strokeBorder(color.borderColor, lineWidth: 1)
-                }
-                .onTapGesture {
-                    isEditorFocused = true
-                }
             }
-            .padding(18)
+            .padding(.top, 12)
+            .padding(.leading, 18)
+            .padding(.trailing, 18)
+            .padding(.bottom, 18)
         }
         // The sticky itself is the visible window chrome.
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .strokeBorder(color.borderColor, lineWidth: 1)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            color.glassEdgeColor,
+                            color.borderColor.opacity(0.9),
+                            color.accentColor.opacity(0.24)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.1
+                )
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .inset(by: 1)
+                .strokeBorder(Color.white.opacity(0.12), lineWidth: 0.6)
         }
         .frame(
             minWidth: WindowSceneConfiguration.minimumSize.width,
@@ -142,6 +148,7 @@ struct StickyNoteView: View {
             maxHeight: .infinity
         )
         .background(.clear)
+        .shadow(color: Color.black.opacity(0.08), radius: 16, y: 8)
         .onAppear {
             isEditorFocused = true
         }
@@ -152,19 +159,146 @@ struct StickyNoteView: View {
             Text("This action cannot be undone.")
         }
     }
+}
 
-    private func startTitleEditing() {
-        isEditingTitle = true
-        isTitleEditorFocused = true
+private extension StickyNoteView {
+    var header: some View {
+        HStack(spacing: 10) {
+            titleField
+
+            Spacer(minLength: 0)
+
+            toolbarControls
+        }
+        .padding(.horizontal, 8)
+        .padding(.top, 3)
+        .padding(.bottom, 2)
     }
 
-    private func finishTitleEditing() {
-        guard isEditingTitle else {
-            return
-        }
+    var titleWidthReference: String {
+        title.isEmpty ? StickyNote.defaultTitle : title
+    }
 
-        isEditingTitle = false
-        isTitleEditorFocused = false
-        onCommitTitle()
+    var titleField: some View {
+        TextField(StickyNote.defaultTitle, text: $title)
+            .textFieldStyle(.plain)
+            .font(.system(size: 15, weight: .bold))
+            .foregroundStyle(color.titleColor)
+            .submitLabel(.done)
+            .frame(width: titleFieldWidth, alignment: .leading)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .focused($isTitleEditorFocused)
+            .onSubmit {
+                onCommitTitle()
+            }
+            .onChange(of: isTitleEditorFocused) { _, isFocused in
+                if isFocused {
+                    lastFocusedField = .title
+                }
+
+                if !isFocused {
+                    onCommitTitle()
+                }
+            }
+            .background(alignment: .leading) {
+                Text(titleWidthReference)
+                    .font(.system(size: 15, weight: .bold))
+                    .lineLimit(1)
+                    .fixedSize()
+                    .opacity(0)
+                    .allowsHitTesting(false)
+                    .readWidth { width in
+                        titleFieldWidth = min(max(width + 4, 80), 200)
+                    }
+            }
+    }
+
+    var toolbarControls: some View {
+        HStack(spacing: 8) {
+            Menu {
+                ForEach(NoteColor.allCases) { option in
+                    Button {
+                        color = option
+                        restoreFocusAfterColorChange()
+                    } label: {
+                        Label(option.displayName, systemImage: option == color ? "checkmark.circle.fill" : "circle")
+                    }
+                }
+            } label: {
+                toolbarIconLabel(
+                    systemImage: "paintpalette",
+                    foregroundColor: Color.white.opacity(0.94),
+                    isHovered: hoveredToolbarControl == .color
+                )
+            }
+            .buttonStyle(.plain)
+            .menuStyle(.borderlessButton)
+            .help("Change note color")
+            .onHover { isHovered in
+                hoveredToolbarControl = isHovered ? .color : clearedHoverState(for: .color)
+            }
+
+            Button {
+                isShowingDeleteConfirmation = true
+            } label: {
+                toolbarIconLabel(
+                    systemImage: "trash",
+                    foregroundColor: Color.white.opacity(0.98),
+                    isHovered: hoveredToolbarControl == .delete
+                )
+            }
+            .buttonStyle(.plain)
+            .help("Delete note")
+            .onHover { isHovered in
+                hoveredToolbarControl = isHovered ? .delete : clearedHoverState(for: .delete)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func toolbarIconLabel(systemImage: String, foregroundColor: Color, isHovered: Bool) -> some View {
+        Label(systemImage, systemImage: systemImage)
+            .labelStyle(.iconOnly)
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(foregroundColor.opacity(isHovered ? 1.0 : 0.88))
+            .frame(width: 22, height: 22)
+            .contentShape(Rectangle())
+            .animation(.easeOut(duration: 0.14), value: isHovered)
+    }
+
+    private func clearedHoverState(for control: ToolbarControl) -> ToolbarControl? {
+        hoveredToolbarControl == control ? nil : hoveredToolbarControl
+    }
+
+    func restoreFocusAfterColorChange() {
+        DispatchQueue.main.async {
+            switch lastFocusedField {
+            case .title:
+                isTitleEditorFocused = true
+            case .body:
+                isEditorFocused = true
+            }
+        }
+    }
+}
+
+private struct WidthPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+private extension View {
+    func readWidth(_ onChange: @escaping (CGFloat) -> Void) -> some View {
+        background(
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(key: WidthPreferenceKey.self, value: proxy.size.width)
+            }
+        )
+        .onPreferenceChange(WidthPreferenceKey.self, perform: onChange)
     }
 }

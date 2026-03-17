@@ -27,6 +27,7 @@ struct Awesome_StickiesTests {
 
         try await Task.sleep(for: .milliseconds(40))
         #expect(persistence.savedSnapshots.count == 1)
+        #expect(persistence.savedSnapshots[0].preferences.windowOpacity == AppPreferences.defaultWindowOpacity)
     }
 
     @Test func closingOneWindowOnlyRemovesMatchingNote() async throws {
@@ -66,7 +67,7 @@ struct Awesome_StickiesTests {
         try await Task.sleep(for: .milliseconds(40))
 
         #expect(persistence.savedSnapshots.count == 1)
-        #expect(persistence.savedSnapshots[0].map(\.id) == [remainingNoteID])
+        #expect(persistence.savedSnapshots[0].notes.map(\.id) == [remainingNoteID])
     }
 
     @Test func deletingLastNoteLeavesEmptyStateUntilNextLaunch() async throws {
@@ -87,7 +88,7 @@ struct Awesome_StickiesTests {
         try await Task.sleep(for: .milliseconds(40))
 
         #expect(persistence.savedSnapshots.count == 1)
-        #expect(persistence.savedSnapshots[0].isEmpty)
+        #expect(persistence.savedSnapshots[0].notes.isEmpty)
     }
 
     @Test func bootstrapRestoresPersistedNotesAndReopensWindows() async throws {
@@ -103,7 +104,12 @@ struct Awesome_StickiesTests {
                 frame: NoteFrame(x: 360, y: 420, width: 380, height: 400)
             )
         ]
-        let persistence = InMemoryStickyNotesPersistence(loadedNotes: restoredNotes)
+        let persistence = InMemoryStickyNotesPersistence(
+            loadedState: PersistedAppState(
+                preferences: AppPreferences(windowOpacity: 0.84),
+                notes: restoredNotes
+            )
+        )
         let windowManager = NoteWindowManagerSpy()
         let viewModel = AppViewModel(persistence: persistence, autosaveDelay: 0.01)
 
@@ -111,8 +117,10 @@ struct Awesome_StickiesTests {
         viewModel.bootstrapNotes()
 
         #expect(viewModel.notes == restoredNotes)
+        #expect(viewModel.windowOpacity == 0.84)
         #expect(windowManager.shownNoteIDs == restoredNotes.map(\.id))
         #expect(windowManager.shownNotes == restoredNotes)
+        #expect(windowManager.updatedOpacities == [0.84])
     }
 
     @Test func bootstrapCreatesDefaultNoteWhenNoPersistedNotesExist() async throws {
@@ -141,7 +149,7 @@ struct Awesome_StickiesTests {
         try await Task.sleep(for: .milliseconds(80))
 
         #expect(persistence.savedSnapshots.count == 1)
-        #expect(persistence.savedSnapshots[0].first?.text == "ABC")
+        #expect(persistence.savedSnapshots[0].notes.first?.text == "ABC")
     }
 
     @Test func updatingTitleDebouncesAutosaveAndPersistsLatestTitle() async throws {
@@ -158,7 +166,7 @@ struct Awesome_StickiesTests {
         try await Task.sleep(for: .milliseconds(80))
 
         #expect(persistence.savedSnapshots.count == 1)
-        #expect(persistence.savedSnapshots[0].first?.title == "ABC")
+        #expect(persistence.savedSnapshots[0].notes.first?.title == "ABC")
     }
 
     @Test func committingTitleEditingPersistsImmediately() async throws {
@@ -172,7 +180,22 @@ struct Awesome_StickiesTests {
         viewModel.commitTitleEditing(for: noteID)
 
         #expect(persistence.savedSnapshots.count == 1)
-        #expect(persistence.savedSnapshots[0].first?.title == "Renamed")
+        #expect(persistence.savedSnapshots[0].notes.first?.title == "Renamed")
+    }
+
+    @Test func committingEmptyTitleRestoresDefaultTitle() async throws {
+        let persistence = InMemoryStickyNotesPersistence()
+        let viewModel = AppViewModel(persistence: persistence, autosaveDelay: 1)
+
+        viewModel.createAndOpenNote()
+        let noteID = try #require(viewModel.notes.first?.id)
+
+        viewModel.titleBinding(for: noteID).wrappedValue = "   "
+        viewModel.commitTitleEditing(for: noteID)
+
+        #expect(viewModel.note(withID: noteID)?.title == StickyNote.defaultTitle)
+        #expect(persistence.savedSnapshots.count == 1)
+        #expect(persistence.savedSnapshots[0].notes.first?.title == StickyNote.defaultTitle)
     }
 
     @Test func updatingColorDebouncesAutosaveAndPersistsLatestColor() async throws {
@@ -190,7 +213,26 @@ struct Awesome_StickiesTests {
         try await Task.sleep(for: .milliseconds(80))
 
         #expect(persistence.savedSnapshots.count == 1)
-        #expect(persistence.savedSnapshots[0].first?.color == .green)
+        #expect(persistence.savedSnapshots[0].notes.first?.color == .green)
+    }
+
+    @Test func updatingWindowOpacityPersistsAndUpdatesExistingWindows() async throws {
+        let persistence = InMemoryStickyNotesPersistence()
+        let windowManager = NoteWindowManagerSpy()
+        let viewModel = AppViewModel(persistence: persistence, autosaveDelay: 0.02)
+
+        viewModel.attachWindowManager(windowManager)
+        viewModel.createAndOpenNote()
+
+        viewModel.windowOpacityBinding().wrappedValue = 0.8
+
+        #expect(viewModel.windowOpacity == 0.8)
+        #expect(windowManager.updatedOpacities == [0.8])
+
+        try await Task.sleep(for: .milliseconds(80))
+
+        #expect(persistence.savedSnapshots.count == 1)
+        #expect(persistence.savedSnapshots[0].preferences.windowOpacity == 0.8)
     }
 
     @Test func updatingFrameDebouncesAutosaveAndPersistsLatestFrame() async throws {
@@ -214,7 +256,7 @@ struct Awesome_StickiesTests {
         try await Task.sleep(for: .milliseconds(80))
 
         #expect(persistence.savedSnapshots.count == 1)
-        #expect(persistence.savedSnapshots[0].first?.frame == NoteFrame(x: 210, y: 260, width: 480, height: 520))
+        #expect(persistence.savedSnapshots[0].notes.first?.frame == NoteFrame(x: 210, y: 260, width: 480, height: 520))
     }
 
     @Test func updatingFrameClampsToWindowMinimumSize() async throws {
@@ -244,7 +286,9 @@ struct Awesome_StickiesTests {
         let restoredNotes = [
             StickyNote(title: "Colored", text: "A", color: .purple)
         ]
-        let persistence = InMemoryStickyNotesPersistence(loadedNotes: restoredNotes)
+        let persistence = InMemoryStickyNotesPersistence(
+            loadedState: PersistedAppState(notes: restoredNotes)
+        )
         let viewModel = AppViewModel(persistence: persistence, autosaveDelay: 0.01)
 
         viewModel.bootstrapNotes()
@@ -280,29 +324,30 @@ struct Awesome_StickiesTests {
         encoder.dateEncodingStrategy = .iso8601
         try encoder.encode(expectedNotes).write(to: backupURL, options: .atomic)
 
-        let loadedNotes = try persistence.loadNotes()
+        let loadedState = try persistence.loadState()
 
-        #expect(loadedNotes == expectedNotes)
+        #expect(loadedState.notes == expectedNotes)
+        #expect(loadedState.preferences == AppPreferences())
 
         let repairedPrimaryData = try Data(contentsOf: primaryURL)
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        #expect(try decoder.decode([StickyNote].self, from: repairedPrimaryData) == expectedNotes)
+        #expect(try decoder.decode(PersistedAppState.self, from: repairedPrimaryData).notes == expectedNotes)
     }
 }
 
 private final class InMemoryStickyNotesPersistence: StickyNotesPersistence {
-    private let loadedNotes: [StickyNote]
-    private(set) var savedSnapshots: [[StickyNote]] = []
+    private let loadedState: PersistedAppState
+    private(set) var savedSnapshots: [PersistedAppState] = []
 
-    init(loadedNotes: [StickyNote] = []) {
-        self.loadedNotes = loadedNotes
+    init(loadedState: PersistedAppState = PersistedAppState()) {
+        self.loadedState = loadedState
     }
 
-    func loadNotes() throws -> [StickyNote] { loadedNotes }
+    func loadState() throws -> PersistedAppState { loadedState }
 
-    func saveNotes(_ notes: [StickyNote]) throws {
-        savedSnapshots.append(notes)
+    func saveState(_ state: PersistedAppState) throws {
+        savedSnapshots.append(state)
     }
 }
 
@@ -311,6 +356,7 @@ private final class NoteWindowManagerSpy: NoteWindowManaging {
     private(set) var shownNoteIDs: [UUID] = []
     private(set) var shownNotes: [StickyNote] = []
     private(set) var closedNoteIDs: [UUID] = []
+    private(set) var updatedOpacities: [Double] = []
 
     func showWindow(for note: StickyNote) {
         shownNoteIDs.append(note.id)
@@ -323,4 +369,8 @@ private final class NoteWindowManagerSpy: NoteWindowManaging {
     }
 
     func updateWindow(for note: StickyNote) {}
+
+    func updateWindowOpacity(_ opacity: Double) {
+        updatedOpacities.append(opacity)
+    }
 }

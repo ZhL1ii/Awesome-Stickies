@@ -13,6 +13,7 @@ protocol NoteWindowManaging: AnyObject {
     func showWindow(for note: StickyNote)
     func closeWindow(for noteID: UUID) -> Bool
     func updateWindow(for note: StickyNote)
+    func updateWindowOpacity(_ opacity: Double)
 }
 
 @MainActor
@@ -20,9 +21,11 @@ final class NoteWindowManager: NSObject, NoteWindowManaging {
     private weak var viewModel: AppViewModel?
     private var windowsByNoteID: [UUID: NSWindow] = [:]
     private var noteIDsByWindowNumber: [Int: UUID] = [:]
+    private var currentWindowOpacity = AppPreferences.defaultWindowOpacity
 
     func attachViewModel(_ viewModel: AppViewModel) {
         self.viewModel = viewModel
+        currentWindowOpacity = viewModel.windowOpacity
     }
 
     func showWindow(for note: StickyNote) {
@@ -50,6 +53,7 @@ final class NoteWindowManager: NSObject, NoteWindowManaging {
         window.minSize = WindowSceneConfiguration.minimumSize
         window.isReleasedWhenClosed = false
         configureAppearance(for: window)
+        applyWindowOpacity(to: window)
         window.makeKeyAndOrderFront(nil)
 
         windowsByNoteID[note.id] = window
@@ -73,6 +77,14 @@ final class NoteWindowManager: NSObject, NoteWindowManaging {
         }
 
         window.title = note.title
+    }
+
+    func updateWindowOpacity(_ opacity: Double) {
+        currentWindowOpacity = AppPreferences.clamp(opacity)
+
+        windowsByNoteID.values.forEach { window in
+            applyWindowOpacity(to: window)
+        }
     }
 
     private func requiredViewModel() -> AppViewModel {
@@ -102,6 +114,10 @@ final class NoteWindowManager: NSObject, NoteWindowManaging {
         window.standardWindowButton(.closeButton)?.isHidden = true
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
+    }
+
+    private func applyWindowOpacity(to window: NSWindow) {
+        window.alphaValue = CGFloat(currentWindowOpacity)
     }
 }
 

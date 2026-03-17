@@ -13,6 +13,7 @@ import SwiftUI
 @MainActor
 final class AppViewModel: ObservableObject {
     @Published private(set) var notes: [StickyNote] = []
+    @Published private(set) var preferences = AppPreferences()
     @Published private(set) var lastPersistenceErrorDescription: String?
 
     private let persistence: StickyNotesPersistence
@@ -45,16 +46,18 @@ final class AppViewModel: ObservableObject {
         hasBootstrapped = true
 
         do {
-            let restoredNotes = try persistence.loadNotes()
+            let restoredState = try persistence.loadState()
+            preferences = restoredState.preferences
+            windowManager?.updateWindowOpacity(restoredState.preferences.windowOpacity)
 
-            if restoredNotes.isEmpty {
+            if restoredState.notes.isEmpty {
                 createAndOpenNote()
                 persistNotesNow()
                 return
             }
 
-            notes = restoredNotes
-            restoreWindows(for: restoredNotes)
+            notes = restoredState.notes
+            restoreWindows(for: restoredState.notes)
             clearPersistenceError()
         } catch {
             handlePersistenceError(error, context: "Failed to load notes during launch")
@@ -119,6 +122,21 @@ final class AppViewModel: ObservableObject {
         )
     }
 
+    func windowOpacityBinding() -> Binding<Double> {
+        Binding(
+            get: { [weak self] in
+                self?.preferences.windowOpacity ?? AppPreferences.defaultWindowOpacity
+            },
+            set: { [weak self] newOpacity in
+                self?.updateWindowOpacity(newOpacity)
+            }
+        )
+    }
+
+    var windowOpacity: Double {
+        preferences.windowOpacity
+    }
+
     func handleWindowClose(for noteID: UUID) {
         removeNote(noteID: noteID)
     }
@@ -146,8 +164,16 @@ final class AppViewModel: ObservableObject {
     }
 
     func commitTitleEditing(for noteID: UUID) {
-        guard note(withID: noteID) != nil else {
+        guard let noteIndex = notes.firstIndex(where: { $0.id == noteID }) else {
             return
+        }
+
+        let trimmedTitle = notes[noteIndex].title.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmedTitle.isEmpty {
+            notes[noteIndex].title = StickyNote.defaultTitle
+            notes[noteIndex].updatedAt = Date()
+            windowManager?.updateWindow(for: notes[noteIndex])
         }
 
         persistNotesNow()
@@ -227,11 +253,28 @@ final class AppViewModel: ObservableObject {
 
     private func saveNotes() {
         do {
-            try persistence.saveNotes(notes)
+            try persistence.saveState(
+                PersistedAppState(
+                    preferences: preferences,
+                    notes: notes
+                )
+            )
             clearPersistenceError()
         } catch {
             handlePersistenceError(error, context: "Failed to save notes")
         }
+    }
+
+    private func updateWindowOpacity(_ opacity: Double) {
+        let sanitizedOpacity = AppPreferences.clamp(opacity)
+
+        guard preferences.windowOpacity != sanitizedOpacity else {
+            return
+        }
+
+        preferences.windowOpacity = sanitizedOpacity
+        windowManager?.updateWindowOpacity(sanitizedOpacity)
+        scheduleAutosave()
     }
 
     private func clearPersistenceError() {

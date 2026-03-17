@@ -15,7 +15,7 @@ struct Awesome_StickiesApp: App {
 
     var body: some Scene {
         Settings {
-            EmptyView()
+            SettingsView(viewModel: container.appViewModel)
         }
         .commands {
             NewNoteCommands(viewModel: container.appViewModel)

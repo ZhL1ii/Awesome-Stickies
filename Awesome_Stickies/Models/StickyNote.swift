@@ -8,6 +8,8 @@
 import Foundation
 
 struct StickyNote: Identifiable, Codable, Equatable {
+    static let defaultTitle = "Untitled"
+
     let id: UUID
     var title: String
     var text: String
@@ -18,7 +20,7 @@ struct StickyNote: Identifiable, Codable, Equatable {
 
     init(
         id: UUID = UUID(),
-        title: String = "Untitled Note",
+        title: String = StickyNote.defaultTitle,
         text: String = "",
         color: NoteColor = .yellow,
         frame: NoteFrame = .defaultFrame,
@@ -36,7 +38,7 @@ struct StickyNote: Identifiable, Codable, Equatable {
 
     static func newNote(cascadeIndex: Int) -> StickyNote {
         StickyNote(
-            title: "Untitled Note",
+            title: StickyNote.defaultTitle,
             color: .yellow,
             frame: WindowSceneConfiguration.defaultFrame(forCascadeIndex: cascadeIndex)
         )

@@ -28,8 +28,8 @@ enum NoteColor: String, Codable, CaseIterable, Identifiable {
                 background: Color(red: 0.99, green: 0.95, blue: 0.72),
                 editorBackground: Color(red: 1.0, green: 0.98, blue: 0.86),
                 border: Color.white.opacity(0.30),
-                title: Color.black.opacity(0.72),
-                body: Color.black.opacity(0.82)
+                title: Color.black.opacity(0.78),
+                body: Color.black.opacity(0.88)
             )
         case .blue:
             return Palette(
@@ -37,8 +37,8 @@ enum NoteColor: String, Codable, CaseIterable, Identifiable {
                 background: Color(red: 0.83, green: 0.92, blue: 0.98),
                 editorBackground: Color(red: 0.94, green: 0.97, blue: 1.0),
                 border: Color.white.opacity(0.28),
-                title: Color.black.opacity(0.72),
-                body: Color.black.opacity(0.82)
+                title: Color.black.opacity(0.78),
+                body: Color.black.opacity(0.88)
             )
         case .green:
             return Palette(
@@ -46,8 +46,8 @@ enum NoteColor: String, Codable, CaseIterable, Identifiable {
                 background: Color(red: 0.84, green: 0.95, blue: 0.84),
                 editorBackground: Color(red: 0.93, green: 0.98, blue: 0.93),
                 border: Color.white.opacity(0.28),
-                title: Color.black.opacity(0.72),
-                body: Color.black.opacity(0.82)
+                title: Color.black.opacity(0.78),
+                body: Color.black.opacity(0.88)
             )
         case .pink:
             return Palette(
@@ -55,8 +55,8 @@ enum NoteColor: String, Codable, CaseIterable, Identifiable {
                 background: Color(red: 0.98, green: 0.88, blue: 0.92),
                 editorBackground: Color(red: 1.0, green: 0.95, blue: 0.97),
                 border: Color.white.opacity(0.30),
-                title: Color.black.opacity(0.72),
-                body: Color.black.opacity(0.82)
+                title: Color.black.opacity(0.78),
+                body: Color.black.opacity(0.88)
             )
         case .purple:
             return Palette(
@@ -64,8 +64,8 @@ enum NoteColor: String, Codable, CaseIterable, Identifiable {
                 background: Color(red: 0.90, green: 0.87, blue: 0.98),
                 editorBackground: Color(red: 0.96, green: 0.94, blue: 1.0),
                 border: Color.white.opacity(0.28),
-                title: Color.black.opacity(0.74),
-                body: Color.black.opacity(0.84)
+                title: Color.black.opacity(0.80),
+                body: Color.black.opacity(0.90)
             )
         }
     }
@@ -76,6 +76,26 @@ enum NoteColor: String, Codable, CaseIterable, Identifiable {
 
     var backgroundColor: Color {
         palette.background
+    }
+
+    var glassTintColor: Color {
+        palette.background.opacity(0.55)
+    }
+
+    var glassEdgeColor: Color {
+        Color.white.opacity(0.42)
+    }
+
+    var glassHighlightColor: Color {
+        Color.white.opacity(0.55)
+    }
+
+    var glassGlowColor: Color {
+        palette.accent.opacity(0.18)
+    }
+
+    var controlFillColor: Color {
+        palette.editorBackground.opacity(0.52)
     }
 
     var editorBackgroundColor: Color {

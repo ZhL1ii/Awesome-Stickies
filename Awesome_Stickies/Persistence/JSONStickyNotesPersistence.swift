@@ -30,20 +30,20 @@ final class JSONStickyNotesPersistence: StickyNotesPersistence {
         self.decoder = decoder
     }
 
-    func loadNotes() throws -> [StickyNote] {
+    func loadState() throws -> PersistedAppState {
         let fileURL = try pathProvider.notesFileURL
         let backupFileURL = try pathProvider.backupNotesFileURL
 
         guard fileManager.fileExists(atPath: fileURL.path) else {
             guard fileManager.fileExists(atPath: backupFileURL.path) else {
-                return []
+                return PersistedAppState()
             }
 
-            return try loadNotes(from: backupFileURL)
+            return try loadState(from: backupFileURL)
         }
 
         do {
-            return try loadNotes(from: fileURL)
+            return try loadState(from: fileURL)
         } catch {
             let primaryError = error
 
@@ -52,19 +52,19 @@ final class JSONStickyNotesPersistence: StickyNotesPersistence {
             }
 
             do {
-                let restoredNotes = try loadNotes(from: backupFileURL)
+                let restoredState = try loadState(from: backupFileURL)
                 try? copyItem(at: backupFileURL, to: fileURL)
-                return restoredNotes
+                return restoredState
             } catch {
                 throw StickyNotesPersistenceError.loadFailed(primaryError: primaryError, backupError: error)
             }
         }
     }
 
-    func saveNotes(_ notes: [StickyNote]) throws {
+    func saveState(_ state: PersistedAppState) throws {
         let fileURL = try pathProvider.notesFileURL
         let backupFileURL = try pathProvider.backupNotesFileURL
-        let data = try encoder.encode(notes)
+        let data = try encoder.encode(state)
 
         do {
             try data.write(to: fileURL, options: .atomic)
@@ -82,9 +82,19 @@ final class JSONStickyNotesPersistence: StickyNotesPersistence {
         try? data.write(to: backupFileURL, options: .atomic)
     }
 
-    private func loadNotes(from fileURL: URL) throws -> [StickyNote] {
+    private func loadState(from fileURL: URL) throws -> PersistedAppState {
         let data = try Data(contentsOf: fileURL)
-        return try decoder.decode([StickyNote].self, from: data)
+
+        // Support the previous on-disk format where the file was just `[StickyNote]`.
+        if let legacyNotes = try? decoder.decode([StickyNote].self, from: data) {
+            return PersistedAppState(notes: legacyNotes)
+        }
+
+        let state = try decoder.decode(PersistedAppState.self, from: data)
+        return PersistedAppState(
+            preferences: AppPreferences(windowOpacity: state.preferences.windowOpacity),
+            notes: state.notes
+        )
     }
 
     private func copyItem(at sourceURL: URL, to destinationURL: URL) throws {
