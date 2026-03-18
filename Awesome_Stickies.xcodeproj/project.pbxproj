@@ -403,7 +403,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Awesome Stickies";
+				INFOPLIST_KEY_CFBundleDisplayName = Stickies;
+				INFOPLIST_KEY_CFBundleName = Stickies;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -411,6 +412,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ZhL1ii.Awesome-Stickies";
+				PRODUCT_MODULE_NAME = Awesome_Stickies;
 				PRODUCT_NAME = Stickies;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -436,7 +438,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Awesome Stickies";
+				INFOPLIST_KEY_CFBundleDisplayName = Stickies;
+				INFOPLIST_KEY_CFBundleName = Stickies;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -444,6 +447,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ZhL1ii.Awesome-Stickies";
+				PRODUCT_MODULE_NAME = Awesome_Stickies;
 				PRODUCT_NAME = Stickies;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -472,7 +476,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Awesome_Stickies.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Awesome_Stickies";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stickies.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Stickies";
 			};
 			name = Debug;
 		};
@@ -493,7 +497,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Awesome_Stickies.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Awesome_Stickies";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stickies.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Stickies";
 			};
 			name = Release;
 		};
