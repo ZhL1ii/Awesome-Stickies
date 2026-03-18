@@ -2,7 +2,7 @@
 //  StickyNoteView.swift
 //  Awesome_Stickies
 //
-//  Created by Codex on 2026/3/15.
+//  Created by Chie on 2026/3/15.
 //
 
 import SwiftUI
@@ -30,6 +30,7 @@ struct StickyNoteView: View {
     @State private var titleFieldWidth: CGFloat = 80
     @State private var lastFocusedField: ActiveField = .body
     @State private var hoveredToolbarControl: ToolbarControl?
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         ZStack {
@@ -228,7 +229,7 @@ private extension StickyNoteView {
             } label: {
                 toolbarIconLabel(
                     systemImage: "paintpalette",
-                    foregroundColor: Color.white.opacity(0.94),
+                    foregroundColor: toolbarForegroundColor(for: .color),
                     isHovered: hoveredToolbarControl == .color
                 )
             }
@@ -244,7 +245,7 @@ private extension StickyNoteView {
             } label: {
                 toolbarIconLabel(
                     systemImage: "trash",
-                    foregroundColor: Color.white.opacity(0.98),
+                    foregroundColor: toolbarForegroundColor(for: .delete),
                     isHovered: hoveredToolbarControl == .delete
                 )
             }
@@ -269,6 +270,19 @@ private extension StickyNoteView {
 
     private func clearedHoverState(for control: ToolbarControl) -> ToolbarControl? {
         hoveredToolbarControl == control ? nil : hoveredToolbarControl
+    }
+
+    private func toolbarForegroundColor(for control: ToolbarControl) -> Color {
+        switch control {
+        case .color:
+            return colorScheme == .dark
+                ? Color(nsColor: .white).opacity(0.92)
+                : Color(nsColor: .labelColor).opacity(0.82)
+        case .delete:
+            return colorScheme == .dark
+                ? Color(nsColor: .white).opacity(0.92)
+                : Color(nsColor: .labelColor).opacity(0.82)
+        }
     }
 
     func restoreFocusAfterColorChange() {

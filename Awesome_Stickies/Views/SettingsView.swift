@@ -2,7 +2,7 @@
 //  SettingsView.swift
 //  Awesome_Stickies
 //
-//  Created by Codex on 2026/3/17.
+//  Created by Chie on 2026/3/17.
 //
 
 import SwiftUI

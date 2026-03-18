@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  Awesome_Stickies
 //
-//  Created by Codex on 2026/3/15.
+//  Created by Chie on 2026/3/15.
 //
 
 import AppKit

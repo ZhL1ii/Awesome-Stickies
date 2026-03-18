@@ -24,7 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		C0C83EC12F6695D00056EA4F /* Awesome_Stickies.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Awesome_Stickies.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0C83EC12F6695D00056EA4F /* Stickies.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stickies.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0C83ECE2F6695D20056EA4F /* Awesome_StickiesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Awesome_StickiesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0C83ED82F6695D20056EA4F /* Awesome_StickiesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Awesome_StickiesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -85,7 +85,7 @@
 		C0C83EC22F6695D00056EA4F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C0C83EC12F6695D00056EA4F /* Awesome_Stickies.app */,
+				C0C83EC12F6695D00056EA4F /* Stickies.app */,
 				C0C83ECE2F6695D20056EA4F /* Awesome_StickiesTests.xctest */,
 				C0C83ED82F6695D20056EA4F /* Awesome_StickiesUITests.xctest */,
 			);
@@ -114,7 +114,7 @@
 			packageProductDependencies = (
 			);
 			productName = Awesome_Stickies;
-			productReference = C0C83EC12F6695D00056EA4F /* Awesome_Stickies.app */;
+			productReference = C0C83EC12F6695D00056EA4F /* Stickies.app */;
 			productType = "com.apple.product-type.application";
 		};
 		C0C83ECD2F6695D20056EA4F /* Awesome_StickiesTests */ = {
@@ -403,6 +403,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Awesome Stickies";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -410,7 +411,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ZhL1ii.Awesome-Stickies";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Stickies;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -435,6 +436,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Awesome Stickies";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -442,7 +444,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ZhL1ii.Awesome-Stickies";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Stickies;
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
